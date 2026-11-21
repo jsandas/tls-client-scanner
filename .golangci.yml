@@ -1,0 +1,40 @@
+version: "2"
+
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/jsandas/tls-client-scanner
+
+linters:
+  enable:
+    - errcheck      # Check for unchecked errors
+    - govet         # Examine Go source code
+    - ineffassign   # Detect ineffectual assignments
+    - staticcheck   # Advanced static analysis
+    - unused        # Find unused code
+    - gosec         # Security-focused checks
+    - revive        # Fast, configurable linter
+
+  settings:
+    errcheck:
+      check-type-assertions: true
+
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+
+  exclusions:
+    presets:
+      - std-error-handling
+      - common-false-positives
+    rules:
+      - source: 'TODO'
+        linters: [ godot ]
+      - path: '_test\.go'
+        linters:
+          - errcheck
+          - gosec

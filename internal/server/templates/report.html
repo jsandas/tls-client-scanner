@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TLS client capabilities</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+    body { margin: 0 auto; max-width: 70rem; padding: 2rem; line-height: 1.5; }
+    header, section { margin-bottom: 2rem; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
+    article { border: 1px solid #8888; border-radius: .5rem; padding: 1rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border-bottom: 1px solid #8885; padding: .5rem; text-align: left; }
+    code { overflow-wrap: anywhere; }
+    .badge { border-radius: 1rem; font-size: .75rem; padding: .15rem .5rem; }
+    .warning { background: #ffb00022; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TLS client capabilities</h1>
+    <p>Observed at <code>{{ .ObservedAt.Format "2006-01-02 15:04:05 MST" }}</code></p>
+    {{ with .ServerName }}<p>Requested server name: <code>{{ . }}</code></p>{{ end }}
+  </header>
+
+  <main>
+    <div class="grid">
+      {{ template "capabilities" dict "Title" "TLS versions" "Values" .Protocols }}
+      {{ template "capabilities" dict "Title" "Cipher suites" "Values" .CipherSuites }}
+      {{ template "capabilities" dict "Title" "Supported groups" "Values" .Groups }}
+      {{ template "capabilities" dict "Title" "Signature schemes" "Values" .Signatures }}
+    </div>
+
+    <section>
+      <h2>Application protocols</h2>
+      {{ if .NextProtocols }}
+      <ul>{{ range .NextProtocols }}<li><code>{{ . }}</code></li>{{ end }}</ul>
+      {{ else }}<p>None advertised.</p>{{ end }}
+    </section>
+
+    {{ with .Warnings }}
+    <section class="warning">
+      <h2>Warnings</h2>
+      <ul>{{ range . }}<li><strong>{{ .Code }}</strong>: {{ .Message }}</li>{{ end }}</ul>
+    </section>
+    {{ end }}
+
+    <p>These are client advertisements, not proof that every advertised option is operational.</p>
+    <p><a href="/api/v1/report">View JSON report</a></p>
+  </main>
+</body>
+</html>
+
+{{ define "capabilities" }}
+<article>
+  <h2>{{ .Title }}</h2>
+  <table>
+    <thead><tr><th>Name</th><th>ID</th><th>Flags</th></tr></thead>
+    <tbody>
+      {{ range .Values }}
+      <tr>
+        <td>{{ .Name }}</td>
+        <td><code>{{ .ID }}</code></td>
+        <td>
+          {{ if .GREASE }}<span class="badge">GREASE</span>{{ end }}
+          {{ if .PostQuantum }}<span class="badge">post-quantum</span>{{ end }}
+          {{ if .Experimental }}<span class="badge">experimental</span>{{ end }}
+          {{ if not .Known }}<span class="badge">unknown</span>{{ end }}
+        </td>
+      </tr>
+      {{ end }}
+    </tbody>
+  </table>
+</article>
+{{ end }}
