@@ -1,4 +1,4 @@
-.PHONY: all build test test-unit clean quality fmt fmt-check go-mod-tidy lint lint-install help
+.PHONY: all build setup run test test-unit clean quality fmt fmt-check go-mod-tidy lint lint-install help
 
 all: build
 
@@ -6,6 +6,9 @@ build:
 	go build -o tls-client-scanner ./cmd/tls-client-scanner
 
 setup: test/cert.pem test/key.pem
+
+# Only generate the certificates if they are missing.
+test/cert.pem test/key.pem:
 	@mkdir -p test
 	@openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -noenc \
 		-out test/cert.pem \
