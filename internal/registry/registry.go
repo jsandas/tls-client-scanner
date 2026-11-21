@@ -16,20 +16,6 @@ var protocolNames = map[uint16]string{
 	tls.VersionTLS13: "TLS 1.3",
 }
 
-var cipherNames = map[uint16]string{
-	0x002f: "TLS_RSA_WITH_AES_128_CBC_SHA",
-	0x0035: "TLS_RSA_WITH_AES_256_CBC_SHA",
-	0x009c: "TLS_RSA_WITH_AES_128_GCM_SHA256",
-	0x009d: "TLS_RSA_WITH_AES_256_GCM_SHA384",
-	tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256:   "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384:   "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256: "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-	tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384: "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-	tls.TLS_AES_128_GCM_SHA256:                  "TLS_AES_128_GCM_SHA256",
-	tls.TLS_AES_256_GCM_SHA384:                  "TLS_AES_256_GCM_SHA384",
-	tls.TLS_CHACHA20_POLY1305_SHA256:            "TLS_CHACHA20_POLY1305_SHA256",
-}
-
 var groupNames = map[tls.CurveID]Group{
 	tls.CurveP256: {
 		Name: "secp256r1",
@@ -51,6 +37,8 @@ var groupNames = map[tls.CurveID]Group{
 
 var signatureNames = map[tls.SignatureScheme]string{
 	tls.PKCS1WithSHA256:        "rsa_pkcs1_sha256",
+	tls.PKCS1WithSHA384:        "rsa_pkcs1_sha384",
+	tls.PKCS1WithSHA512:        "rsa_pkcs1_sha512",
 	tls.ECDSAWithP256AndSHA256: "ecdsa_secp256r1_sha256",
 	tls.ECDSAWithP384AndSHA384: "ecdsa_secp384r1_sha384",
 	tls.ECDSAWithP521AndSHA512: "ecdsa_secp521r1_sha512",
@@ -58,6 +46,9 @@ var signatureNames = map[tls.SignatureScheme]string{
 	tls.PSSWithSHA384:          "rsa_pss_rsae_sha384",
 	tls.PSSWithSHA512:          "rsa_pss_rsae_sha512",
 	tls.Ed25519:                "ed25519",
+	tls.MLDSA44:                "mldsa_44",
+	tls.MLDSA65:                "mldsa_65",
+	tls.MLDSA87:                "mldsa_87",
 }
 
 // ProtocolName resolves a TLS protocol version identifier.
