@@ -153,6 +153,21 @@
     </header>
 
     <main>
+      {{ with .Negotiated }}
+      <section>
+        <h2>Negotiated handshake</h2>
+        <table>
+          <thead><tr><th>Parameter</th><th>Name</th><th>ID</th></tr></thead>
+          <tbody>
+            <tr><td>Protocol</td><td>{{ .Protocol.Name }}</td><td><code>{{ .Protocol.ID }}</code></td></tr>
+            <tr><td>Cipher suite</td><td>{{ .CipherSuite.Name }}</td><td><code>{{ .CipherSuite.ID }}</code></td></tr>
+            <tr><td>Key exchange</td><td>{{ .KeyExchange.Name }}</td><td><code>{{ .KeyExchange.ID }}</code></td></tr>
+            {{ with .SignatureKeyType }}<tr><td>Signature key type</td><td><code>{{ . }}</code></td><td></td></tr>{{ end }}
+          </tbody>
+        </table>
+      </section>
+      {{ end }}
+
       <div class="grid">
         {{ template "capabilities" dict "Title" "TLS versions" "Values" .Protocols }}
         {{ template "capabilities" dict "Title" "Cipher suites" "Values" .CipherSuites }}

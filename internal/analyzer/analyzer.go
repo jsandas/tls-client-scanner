@@ -2,6 +2,7 @@ package analyzer
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"slices"
 	"time"
@@ -12,7 +13,7 @@ import (
 )
 
 // Analyze transforms an observed ClientHello into a transport-independent report.
-func Analyze(hello clienthello.Hello) report.Report {
+func Analyze(hello clienthello.Hello, negotiated *tls.ConnectionState) report.Report {
 	knownProtocols := make([]report.Capability, 0, len(hello.SupportedVersions))
 	for _, id := range hello.SupportedVersions {
 		knownProtocols = append(knownProtocols, protocolCapability(id))
@@ -28,6 +29,14 @@ func Analyze(hello clienthello.Hello) report.Report {
 		Groups:        groupCapabilities(hello.SupportedGroups),
 		Signatures:    signatureCapabilities(hello.SignatureSchemes),
 		NextProtocols: slices.Clone(hello.NextProtocols),
+	}
+	if negotiated != nil && negotiated.HandshakeComplete {
+		result.Negotiated = &report.Negotiated{
+			Protocol:         protocolCapability(negotiated.Version),
+			CipherSuite:      cipherCapability(negotiated.CipherSuite),
+			KeyExchange:      groupCapability(negotiated.CurveID),
+			SignatureKeyType: signatureKeyType(negotiated),
+		}
 	}
 	result.Warnings = warnings(hello)
 
@@ -48,33 +57,43 @@ func protocolCapability(id uint16) report.Capability {
 func cipherCapabilities(ids []uint16) []report.Capability {
 	capabilities := make([]report.Capability, 0, len(ids))
 	for _, id := range ids {
-		name, known := registry.CipherName(id)
-		capabilities = append(capabilities, report.Capability{
-			ID:     fmt.Sprintf("0x%04x", id),
-			Name:   resolvedName(name, known, id),
-			Known:  known,
-			GREASE: registry.IsGREASE(id),
-		})
+		capabilities = append(capabilities, cipherCapability(id))
 	}
 
 	return capabilities
 }
 
+func cipherCapability(id uint16) report.Capability {
+	name, known := registry.CipherName(id)
+
+	return report.Capability{
+		ID:     fmt.Sprintf("0x%04x", id),
+		Name:   resolvedName(name, known, id),
+		Known:  known,
+		GREASE: registry.IsGREASE(id),
+	}
+}
+
 func groupCapabilities(ids []tls.CurveID) []report.Capability {
 	capabilities := make([]report.Capability, 0, len(ids))
 	for _, id := range ids {
-		group, known := registry.GroupMetadata(id)
-		capabilities = append(capabilities, report.Capability{
-			ID:           fmt.Sprintf("0x%04x", uint16(id)),
-			Name:         resolvedName(group.Name, known, uint16(id)),
-			Known:        known,
-			GREASE:       registry.IsGREASE(uint16(id)),
-			Experimental: group.Experimental,
-			PostQuantum:  group.PostQuantum,
-		})
+		capabilities = append(capabilities, groupCapability(id))
 	}
 
 	return capabilities
+}
+
+func groupCapability(id tls.CurveID) report.Capability {
+	group, known := registry.GroupMetadata(id)
+
+	return report.Capability{
+		ID:           fmt.Sprintf("0x%04x", uint16(id)),
+		Name:         resolvedName(group.Name, known, uint16(id)),
+		Known:        known,
+		GREASE:       registry.IsGREASE(uint16(id)),
+		Experimental: group.Experimental,
+		PostQuantum:  group.PostQuantum,
+	}
 }
 
 func signatureCapabilities(ids []tls.SignatureScheme) []report.Capability {
@@ -122,4 +141,28 @@ func warnings(hello clienthello.Hello) []report.Warning {
 	}
 
 	return warnings
+}
+
+func signatureKeyType(state *tls.ConnectionState) string {
+	if len(state.LocalCertificate) == 0 {
+		return ""
+	}
+
+	certificate, err := x509.ParseCertificate(state.LocalCertificate[0])
+	if err != nil {
+		return "unknown"
+	}
+
+	switch certificate.PublicKeyAlgorithm {
+	case x509.RSA:
+		return "rsa"
+	case x509.ECDSA:
+		return "ecdsa"
+	case x509.Ed25519:
+		return "ed25519"
+	case x509.MLDSA:
+		return "mldsa"
+	default:
+		return "unknown"
+	}
 }

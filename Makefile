@@ -5,7 +5,7 @@ all: build
 build:
 	go build -o tls-client-scanner ./cmd/tls-client-scanner
 
-setup: test/cert.pem test/key.pem
+setup: test/cert.pem test/key.pem test/mldsa.pem test/mldsa.key
 
 # Only generate the certificates if they are missing.
 test/cert.pem test/key.pem:
@@ -16,11 +16,25 @@ test/cert.pem test/key.pem:
 		-subj "/CN=localhost" \
 		-addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
 
+test/mldsa.pem test/mldsa.key:
+	@mkdir -p test
+	@openssl req -x509 -newkey mldsa65 -provparam ml-dsa.output_formats=seed-only -sha256 -days 3650 -noenc \
+		-out test/mldsa.pem \
+		-keyout test/mldsa.key \
+		-subj "/CN=localhost" \
+		-addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+
 run: setup build
 	@./tls-client-scanner \
   		-address 127.0.0.1:8443 \
 		-cert test/cert.pem \
 		-key test/key.pem
+
+run_mldsa: setup build
+	@./tls-client-scanner \
+  		-address 127.0.0.1:8443 \
+		-cert test/mldsa.pem \
+		-key test/mldsa.key
 
 test: quality test-unit
 
