@@ -7,164 +7,232 @@
   <style>
     :root {
       color-scheme: dark;
-      font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
-      --bg: #040a1a;
-      --panel: #0a1330cc;
-      --line: #6ea8ff44;
-      --text: #d8e9ff;
-      --muted: #97b4db;
-      --warn: #ffd166;
-      --warn-bg: #ffd1661f;
-      --accent: #7ec8ff;
+      --bg: #0c0d10;
+      --surface: #131418;
+      --surface-2: #191a20;
+      --border: #262830;
+      --border-soft: #1d1f26;
+      --text: #e8e8ec;
+      --muted: #8e9099;
+      --accent: #8ab4ff;
+      --accent-soft: rgba(138, 180, 255, .12);
+      --warn: #e0b15c;
+      --warn-soft: rgba(224, 177, 92, .08);
+      --sans: "Segoe UI", "SF Pro Text", system-ui, -apple-system, sans-serif;
+      --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       min-height: 100vh;
-      line-height: 1.5;
+      background: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(circle at 20% 10%, #1a3f75 0, transparent 50%),
-        radial-gradient(circle at 80% 10%, #3f2f82 0, transparent 45%),
-        linear-gradient(180deg, #030712 0%, var(--bg) 100%);
-      position: relative;
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
     }
-    .crt::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background: repeating-linear-gradient(
-        rgba(0, 0, 0, 0) 0 2px,
-        rgba(0, 0, 0, .22) 2px 4px
-      );
-      z-index: 2;
+    .page {
+      width: min(72rem, 100% - 2.5rem);
+      margin: 0 auto;
+      padding-bottom: 3rem;
     }
-    .shell {
-      width: min(76rem, 100% - 2rem);
-      margin: 1rem auto 2rem;
-      padding: 1.25rem;
-      border: 1px solid var(--line);
-      border-radius: .9rem;
-      background: var(--panel);
-      backdrop-filter: blur(3px);
-      box-shadow: 0 0 0 1px #c5e3ff1a inset, 0 16px 40px #0008;
-      position: relative;
-      z-index: 1;
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      font-family: var(--mono);
+      font-size: .86em;
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--border-soft);
+      border-radius: 5px;
+      padding: .06em .4em;
+      overflow-wrap: break-word;
     }
-    header, section { margin-bottom: 1.25rem; }
-    .meta { margin: .4rem 0; color: var(--muted); }
-    .chrome {
+
+    /* Masthead */
+    .masthead {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: .75rem 1.5rem;
+      padding: 2.25rem 0 1.1rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.75rem;
+    }
+    h1 {
       margin: 0;
-      background: linear-gradient(180deg,#fff 0%,#b8c6db 35%,#5b6b8c 50%,#dfe7f5 52%,#8aa0c8 70%,#fff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      filter: drop-shadow(2px 3px 2px rgba(0,0,0,.5));
-      letter-spacing: .04em;
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -.01em;
+    }
+    .meta {
+      margin: .3rem 0 0;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+    .json-link {
+      font-size: .85rem;
+      font-family: var(--mono);
+      white-space: nowrap;
+    }
+
+    /* Sections */
+    section { margin-bottom: 1.75rem; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.2rem 1.2rem;
+    }
+    h2 {
+      margin: 0 0 .9rem;
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: var(--muted);
     }
     .grid {
       display: grid;
-      gap: 1rem;
-      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+      gap: 1.1rem;
+      grid-template-columns: repeat(auto-fit, minmax(min(30rem, 100%), 1fr));
+      margin-bottom: 1.75rem;
     }
-    article {
-      border: 1px solid var(--line);
-      border-radius: .7rem;
-      padding: .8rem;
-      background: #050d24b3;
-      overflow: hidden;
+
+    /* Negotiated key/value list */
+    dl.kv { margin: 0; }
+    .kv-row {
+      display: grid;
+      grid-template-columns: 12rem 1fr;
+      gap: .3rem 1rem;
+      padding: .5rem 0;
+      border-bottom: 1px solid var(--border-soft);
     }
-    h2 {
-      margin: 0 0 .6rem;
-      color: var(--accent);
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: .06em;
+    .kv-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .kv-row dt { color: var(--muted); font-size: .9rem; }
+    .kv-row dd { margin: 0; }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
     }
     table {
       border-collapse: collapse;
       width: 100%;
-      table-layout: fixed;
-      font-size: .95rem;
+      font-size: .92rem;
     }
     thead th {
-      color: var(--muted);
+      font-size: .7rem;
       font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--muted);
+      text-align: left;
+      padding: 0 .5rem .55rem;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
     }
     th, td {
-      border-bottom: 1px solid var(--line);
-      padding: .45rem .4rem;
+      padding: .5rem;
       text-align: left;
       vertical-align: top;
-      overflow-wrap: anywhere;
-      word-break: break-word;
+      border-bottom: 1px solid var(--border-soft);
+      white-space: nowrap;
     }
-    th:nth-child(1), td:nth-child(1) { width: 45%; }
-    th:nth-child(2), td:nth-child(2) { width: 30%; }
-    th:nth-child(3), td:nth-child(3) { width: 25%; }
-    code {
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      display: inline-block;
-      max-width: 100%;
-      background: #8ecbff1f;
-      border: 1px solid #8ecbff3b;
-      border-radius: .35rem;
-      padding: 0 .35rem;
-    }
+    tbody tr:last-child td { border-bottom: 0; }
+    td:first-child { color: var(--text); }
+    td:not(:first-child) { color: var(--muted); }
+
+    /* Badges */
     .badge-wrap {
       display: flex;
       flex-wrap: wrap;
       gap: .3rem;
     }
     .badge {
-      border-radius: 999px;
-      border: 1px solid #8ecbff4d;
-      background: #8ecbff1c;
-      font-size: .72rem;
+      font-size: .66rem;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: .05em;
-      padding: .12rem .48rem;
+      letter-spacing: .06em;
+      padding: .13rem .5rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--muted);
+      white-space: nowrap;
     }
+    .badge.accent { border-color: rgba(138, 180, 255, .35); background: var(--accent-soft); color: var(--accent); }
+    .badge.warn { border-color: rgba(224, 177, 92, .35); background: var(--warn-soft); color: var(--warn); }
+
+    /* Application protocols */
+    ul.plain {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+    }
+    ul.plain li code { background: var(--surface-2); }
+
+    /* Warnings */
     .warning {
-      border: 1px solid #ffd1668a;
-      border-radius: .6rem;
-      background: var(--warn-bg);
-      padding: .7rem .9rem;
+      background: var(--warn-soft);
+      border: 1px solid rgba(224, 177, 92, .3);
+      border-left: 3px solid var(--warn);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.75rem;
     }
-    .warning h2 { color: var(--warn); margin-bottom: .3rem; }
-    ul { margin: .5rem 0; padding-left: 1.2rem; }
-    a { color: #8bd0ff; }
+    .warning h2 { color: var(--warn); margin-bottom: .5rem; }
+    .warning ul { margin: 0; padding-left: 1.1rem; }
+    .warning li { margin-bottom: .25rem; }
+    .warning li:last-child { margin-bottom: 0; }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+    footer p { margin: 0 0 .4rem; }
+
     @media (max-width: 56rem) {
-      table { display: block; overflow-x: auto; }
-      th:nth-child(1), td:nth-child(1),
-      th:nth-child(2), td:nth-child(2),
-      th:nth-child(3), td:nth-child(3) { width: auto; min-width: 10rem; }
+      .kv-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 30rem) {
+      .page { width: calc(100% - 1.5rem); }
+      .masthead { padding-top: 1.5rem; }
     }
   </style>
 </head>
-<body class="crt">
-  <div class="shell">
-    <header>
-      <h1 class="chrome">TLS client capabilities</h1>
-      <p class="meta">Observed at <code>{{ .ObservedAt.Format "2006-01-02 15:04:05 MST" }}</code></p>
-      {{ with .ServerName }}<p class="meta">Requested server name: <code>{{ . }}</code></p>{{ end }}
+<body>
+  <div class="page">
+    <header class="masthead">
+      <div>
+        <h1>TLS client capabilities</h1>
+        <p class="meta">Observed at <code>{{ .ObservedAt.Format "2006-01-02 15:04:05 MST" }}</code></p>
+        {{ with .ServerName }}<p class="meta">Requested server name: <code>{{ . }}</code></p>{{ end }}
+      </div>
+      <a class="json-link" href="/api/v1/report">view JSON report &rarr;</a>
     </header>
 
     <main>
       {{ with .Negotiated }}
       <section>
-        <h2>Negotiated handshake</h2>
-        <table>
-          <thead><tr><th>Parameter</th><th>Name</th><th>ID</th></tr></thead>
-          <tbody>
-            <tr><td>Protocol</td><td>{{ .Protocol.Name }}</td><td><code>{{ .Protocol.ID }}</code></td></tr>
-            <tr><td>Cipher suite</td><td>{{ .CipherSuite.Name }}</td><td><code>{{ .CipherSuite.ID }}</code></td></tr>
-            <tr><td>Key exchange</td><td>{{ .KeyExchange.Name }}</td><td><code>{{ .KeyExchange.ID }}</code></td></tr>
-            {{ with .SignatureKeyType }}<tr><td>Signature key type</td><td><code>{{ . }}</code></td><td></td></tr>{{ end }}
-          </tbody>
-        </table>
+        <div class="card">
+          <h2>Negotiated handshake</h2>
+          <dl class="kv">
+            <div class="kv-row"><dt>Protocol</dt><dd>{{ .Protocol.Name }} <code>{{ .Protocol.ID }}</code></dd></div>
+            <div class="kv-row"><dt>Cipher suite</dt><dd>{{ .CipherSuite.Name }} <code>{{ .CipherSuite.ID }}</code></dd></div>
+            <div class="kv-row"><dt>Key exchange</dt><dd>{{ .KeyExchange.Name }} <code>{{ .KeyExchange.ID }}</code></dd></div>
+            {{ with .SignatureKeyType }}<div class="kv-row"><dt>Signature key type</dt><dd><code>{{ . }}</code></dd></div>{{ end }}
+          </dl>
+        </div>
       </section>
       {{ end }}
 
@@ -176,10 +244,12 @@
       </div>
 
       <section>
-        <h2>Application protocols</h2>
-        {{ if .NextProtocols }}
-        <ul>{{ range .NextProtocols }}<li><code>{{ . }}</code></li>{{ end }}</ul>
-        {{ else }}<p class="meta">None advertised.</p>{{ end }}
+        <div class="card">
+          <h2>Application protocols</h2>
+          {{ if .NextProtocols }}
+          <ul class="plain">{{ range .NextProtocols }}<li><code>{{ . }}</code></li>{{ end }}</ul>
+          {{ else }}<p class="meta" style="margin:0">None advertised.</p>{{ end }}
+        </div>
       </section>
 
       {{ with .Warnings }}
@@ -189,34 +259,37 @@
       </section>
       {{ end }}
 
-      <p class="meta">These are client advertisements, not proof that every advertised option is operational.</p>
-      <p><a href="/api/v1/report">View JSON report</a></p>
+      <footer>
+        <p>These are client advertisements, not proof that every advertised option is operational. <a href="/api/v1/report">View the JSON report.</a></p>
+      </footer>
     </main>
   </div>
 </body>
 </html>
 
 {{ define "capabilities" }}
-<article>
+<article class="card">
   <h2>{{ .Title }}</h2>
-  <table>
-    <thead><tr><th>Name</th><th>ID</th><th>Flags</th></tr></thead>
-    <tbody>
-      {{ range .Values }}
-      <tr>
-        <td>{{ .Name }}</td>
-        <td><code>{{ .ID }}</code></td>
-        <td>
-          <div class="badge-wrap">
-            {{ if .GREASE }}<span class="badge">GREASE</span>{{ end }}
-            {{ if .PostQuantum }}<span class="badge">post-quantum</span>{{ end }}
-            {{ if .Experimental }}<span class="badge">experimental</span>{{ end }}
-            {{ if not .Known }}<span class="badge">unknown</span>{{ end }}
-          </div>
-        </td>
-      </tr>
-      {{ end }}
-    </tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Name</th><th>ID</th><th>Flags</th></tr></thead>
+      <tbody>
+        {{ range .Values }}
+        <tr>
+          <td>{{ .Name }}</td>
+          <td><code>{{ .ID }}</code></td>
+          <td>
+            <div class="badge-wrap">
+              {{ if .GREASE }}<span class="badge">GREASE</span>{{ end }}
+              {{ if .PostQuantum }}<span class="badge accent">post-quantum</span>{{ end }}
+              {{ if .Experimental }}<span class="badge warn">experimental</span>{{ end }}
+              {{ if not .Known }}<span class="badge warn">unknown</span>{{ end }}
+            </div>
+          </td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </div>
 </article>
 {{ end }}
