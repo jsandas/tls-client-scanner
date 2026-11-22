@@ -42,6 +42,10 @@ The scanner uses `tls.ClientHelloInfo` from `crypto/tls` to observe advertised:
 - ALPN protocols
 - server name
 
+When a handshake completes, the report also includes the negotiated TLS protocol
+version, cipher suite, key exchange mechanism, and inferred
+`signature_key_type` from the server certificate in the connection state.
+
 GREASE values and unknown registry identifiers remain visible. Findings describe
 client advertisements; they do not prove that every advertised option works.
 

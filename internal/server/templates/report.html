@@ -5,50 +5,194 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TLS client capabilities</title>
   <style>
-    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
-    body { margin: 0 auto; max-width: 70rem; padding: 2rem; line-height: 1.5; }
-    header, section { margin-bottom: 2rem; }
-    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); }
-    article { border: 1px solid #8888; border-radius: .5rem; padding: 1rem; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border-bottom: 1px solid #8885; padding: .5rem; text-align: left; }
-    code { overflow-wrap: anywhere; }
-    .badge { border-radius: 1rem; font-size: .75rem; padding: .15rem .5rem; }
-    .warning { background: #ffb00022; }
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", "SF Pro Text", system-ui, sans-serif;
+      --bg: #040a1a;
+      --panel: #0a1330cc;
+      --line: #6ea8ff44;
+      --text: #d8e9ff;
+      --muted: #97b4db;
+      --warn: #ffd166;
+      --warn-bg: #ffd1661f;
+      --accent: #7ec8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      line-height: 1.5;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 10%, #1a3f75 0, transparent 50%),
+        radial-gradient(circle at 80% 10%, #3f2f82 0, transparent 45%),
+        linear-gradient(180deg, #030712 0%, var(--bg) 100%);
+      position: relative;
+    }
+    .crt::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        rgba(0, 0, 0, 0) 0 2px,
+        rgba(0, 0, 0, .22) 2px 4px
+      );
+      z-index: 2;
+    }
+    .shell {
+      width: min(76rem, 100% - 2rem);
+      margin: 1rem auto 2rem;
+      padding: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: .9rem;
+      background: var(--panel);
+      backdrop-filter: blur(3px);
+      box-shadow: 0 0 0 1px #c5e3ff1a inset, 0 16px 40px #0008;
+      position: relative;
+      z-index: 1;
+    }
+    header, section { margin-bottom: 1.25rem; }
+    .meta { margin: .4rem 0; color: var(--muted); }
+    .chrome {
+      margin: 0;
+      background: linear-gradient(180deg,#fff 0%,#b8c6db 35%,#5b6b8c 50%,#dfe7f5 52%,#8aa0c8 70%,#fff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(2px 3px 2px rgba(0,0,0,.5));
+      letter-spacing: .04em;
+    }
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    }
+    article {
+      border: 1px solid var(--line);
+      border-radius: .7rem;
+      padding: .8rem;
+      background: #050d24b3;
+      overflow: hidden;
+    }
+    h2 {
+      margin: 0 0 .6rem;
+      color: var(--accent);
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+      font-size: .95rem;
+    }
+    thead th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: .45rem .4rem;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+    }
+    th:nth-child(1), td:nth-child(1) { width: 45%; }
+    th:nth-child(2), td:nth-child(2) { width: 30%; }
+    th:nth-child(3), td:nth-child(3) { width: 25%; }
+    code {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      display: inline-block;
+      max-width: 100%;
+      background: #8ecbff1f;
+      border: 1px solid #8ecbff3b;
+      border-radius: .35rem;
+      padding: 0 .35rem;
+    }
+    .badge-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+    }
+    .badge {
+      border-radius: 999px;
+      border: 1px solid #8ecbff4d;
+      background: #8ecbff1c;
+      font-size: .72rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      padding: .12rem .48rem;
+    }
+    .warning {
+      border: 1px solid #ffd1668a;
+      border-radius: .6rem;
+      background: var(--warn-bg);
+      padding: .7rem .9rem;
+    }
+    .warning h2 { color: var(--warn); margin-bottom: .3rem; }
+    ul { margin: .5rem 0; padding-left: 1.2rem; }
+    a { color: #8bd0ff; }
+    @media (max-width: 56rem) {
+      table { display: block; overflow-x: auto; }
+      th:nth-child(1), td:nth-child(1),
+      th:nth-child(2), td:nth-child(2),
+      th:nth-child(3), td:nth-child(3) { width: auto; min-width: 10rem; }
+    }
   </style>
 </head>
-<body>
-  <header>
-    <h1>TLS client capabilities</h1>
-    <p>Observed at <code>{{ .ObservedAt.Format "2006-01-02 15:04:05 MST" }}</code></p>
-    {{ with .ServerName }}<p>Requested server name: <code>{{ . }}</code></p>{{ end }}
-  </header>
+<body class="crt">
+  <div class="shell">
+    <header>
+      <h1 class="chrome">TLS client capabilities</h1>
+      <p class="meta">Observed at <code>{{ .ObservedAt.Format "2006-01-02 15:04:05 MST" }}</code></p>
+      {{ with .ServerName }}<p class="meta">Requested server name: <code>{{ . }}</code></p>{{ end }}
+    </header>
 
-  <main>
-    <div class="grid">
-      {{ template "capabilities" dict "Title" "TLS versions" "Values" .Protocols }}
-      {{ template "capabilities" dict "Title" "Cipher suites" "Values" .CipherSuites }}
-      {{ template "capabilities" dict "Title" "Supported groups" "Values" .Groups }}
-      {{ template "capabilities" dict "Title" "Signature schemes" "Values" .Signatures }}
-    </div>
+    <main>
+      {{ with .Negotiated }}
+      <section>
+        <h2>Negotiated handshake</h2>
+        <table>
+          <thead><tr><th>Parameter</th><th>Name</th><th>ID</th></tr></thead>
+          <tbody>
+            <tr><td>Protocol</td><td>{{ .Protocol.Name }}</td><td><code>{{ .Protocol.ID }}</code></td></tr>
+            <tr><td>Cipher suite</td><td>{{ .CipherSuite.Name }}</td><td><code>{{ .CipherSuite.ID }}</code></td></tr>
+            <tr><td>Key exchange</td><td>{{ .KeyExchange.Name }}</td><td><code>{{ .KeyExchange.ID }}</code></td></tr>
+            {{ with .SignatureKeyType }}<tr><td>Signature key type</td><td><code>{{ . }}</code></td><td></td></tr>{{ end }}
+          </tbody>
+        </table>
+      </section>
+      {{ end }}
 
-    <section>
-      <h2>Application protocols</h2>
-      {{ if .NextProtocols }}
-      <ul>{{ range .NextProtocols }}<li><code>{{ . }}</code></li>{{ end }}</ul>
-      {{ else }}<p>None advertised.</p>{{ end }}
-    </section>
+      <div class="grid">
+        {{ template "capabilities" dict "Title" "TLS versions" "Values" .Protocols }}
+        {{ template "capabilities" dict "Title" "Cipher suites" "Values" .CipherSuites }}
+        {{ template "capabilities" dict "Title" "Supported groups" "Values" .Groups }}
+        {{ template "capabilities" dict "Title" "Signature schemes" "Values" .Signatures }}
+      </div>
 
-    {{ with .Warnings }}
-    <section class="warning">
-      <h2>Warnings</h2>
-      <ul>{{ range . }}<li><strong>{{ .Code }}</strong>: {{ .Message }}</li>{{ end }}</ul>
-    </section>
-    {{ end }}
+      <section>
+        <h2>Application protocols</h2>
+        {{ if .NextProtocols }}
+        <ul>{{ range .NextProtocols }}<li><code>{{ . }}</code></li>{{ end }}</ul>
+        {{ else }}<p class="meta">None advertised.</p>{{ end }}
+      </section>
 
-    <p>These are client advertisements, not proof that every advertised option is operational.</p>
-    <p><a href="/api/v1/report">View JSON report</a></p>
-  </main>
+      {{ with .Warnings }}
+      <section class="warning">
+        <h2>Warnings</h2>
+        <ul>{{ range . }}<li><strong>{{ .Code }}</strong>: {{ .Message }}</li>{{ end }}</ul>
+      </section>
+      {{ end }}
+
+      <p class="meta">These are client advertisements, not proof that every advertised option is operational.</p>
+      <p><a href="/api/v1/report">View JSON report</a></p>
+    </main>
+  </div>
 </body>
 </html>
 
@@ -63,10 +207,12 @@
         <td>{{ .Name }}</td>
         <td><code>{{ .ID }}</code></td>
         <td>
-          {{ if .GREASE }}<span class="badge">GREASE</span>{{ end }}
-          {{ if .PostQuantum }}<span class="badge">post-quantum</span>{{ end }}
-          {{ if .Experimental }}<span class="badge">experimental</span>{{ end }}
-          {{ if not .Known }}<span class="badge">unknown</span>{{ end }}
+          <div class="badge-wrap">
+            {{ if .GREASE }}<span class="badge">GREASE</span>{{ end }}
+            {{ if .PostQuantum }}<span class="badge">post-quantum</span>{{ end }}
+            {{ if .Experimental }}<span class="badge">experimental</span>{{ end }}
+            {{ if not .Known }}<span class="badge">unknown</span>{{ end }}
+          </div>
         </td>
       </tr>
       {{ end }}

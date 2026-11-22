@@ -189,7 +189,7 @@ func currentReport(request *http.Request) (report.Report, bool) {
 		return report.Report{}, false
 	}
 
-	return analyzer.Analyze(hello), true
+	return analyzer.Analyze(hello, request.TLS), true
 }
 
 func writeJSON(writer http.ResponseWriter, scan report.Report) {

@@ -10,12 +10,21 @@ type Report struct {
 	ObservedAt    time.Time    `json:"observed_at"`
 	ServerName    string       `json:"server_name,omitempty"`
 	RemoteAddress string       `json:"remote_address,omitempty"`
+	Negotiated    *Negotiated  `json:"negotiated,omitempty"`
 	Protocols     []Capability `json:"protocols"`
 	CipherSuites  []Capability `json:"cipher_suites"`
 	Groups        []Capability `json:"groups"`
 	Signatures    []Capability `json:"signatures"`
 	NextProtocols []string     `json:"next_protocols"`
 	Warnings      []Warning    `json:"warnings"`
+}
+
+// Negotiated describes the final TLS handshake parameters selected by the server.
+type Negotiated struct {
+	Protocol         Capability `json:"protocol"`
+	CipherSuite      Capability `json:"cipher_suite"`
+	KeyExchange      Capability `json:"key_exchange"`
+	SignatureKeyType string     `json:"signature_key_type,omitempty"`
 }
 
 // Capability describes a value advertised by a TLS client.
